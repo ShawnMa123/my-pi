@@ -10,6 +10,8 @@ import type { SourceInfo } from "../src/core/source-info.ts";
 import type { AuthSelectorProvider } from "../src/modes/interactive/components/oauth-selector.ts";
 import { InteractiveMode } from "../src/modes/interactive/interactive-mode.ts";
 import { initTheme } from "../src/modes/interactive/theme/theme.ts";
+import { CONFIG_DIR_NAME } from "../src/config.ts";
+
 
 function renderLastLine(container: Container, width = 120): string {
 	const last = container.children[container.children.length - 1];
@@ -619,21 +621,21 @@ describe("InteractiveMode.showLoadedResources", () => {
 	function createExtensionFixtures(): ExtensionFixture[] {
 		return [
 			{
-				path: "/tmp/project/.pi/extensions/answer.ts",
-				sourceInfo: createSourceInfo("/tmp/project/.pi/extensions/answer.ts", {
+				path: `/tmp/project/${CONFIG_DIR_NAME}/extensions/answer.ts`,
+				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/extensions/answer.ts`, {
 					source: "local",
 					scope: "project",
 					origin: "top-level",
-					baseDir: "/tmp/project/.pi/extensions",
+					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/extensions`,
 				}),
 			},
 			{
-				path: "/tmp/project/.pi/extensions/local-index/index.ts",
-				sourceInfo: createSourceInfo("/tmp/project/.pi/extensions/local-index/index.ts", {
+				path: `/tmp/project/${CONFIG_DIR_NAME}/extensions/local-index/index.ts`,
+				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/extensions/local-index/index.ts`, {
 					source: "local",
 					scope: "project",
 					origin: "top-level",
-					baseDir: "/tmp/project/.pi/extensions",
+					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/extensions`,
 				}),
 			},
 			{
@@ -646,44 +648,44 @@ describe("InteractiveMode.showLoadedResources", () => {
 				}),
 			},
 			{
-				path: "/tmp/project/.pi/npm/node_modules/pi-markdown-preview/extensions/index.ts",
-				sourceInfo: createSourceInfo("/tmp/project/.pi/npm/node_modules/pi-markdown-preview/extensions/index.ts", {
+				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`,
+				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`, {
 					source: "npm:pi-markdown-preview",
 					scope: "project",
 					origin: "package",
-					baseDir: "/tmp/project/.pi/npm/node_modules/pi-markdown-preview",
+					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview`,
 				}),
 			},
 			{
-				path: "/tmp/project/.pi/npm/node_modules/@scope/pi-scoped/extensions/index.ts",
-				sourceInfo: createSourceInfo("/tmp/project/.pi/npm/node_modules/@scope/pi-scoped/extensions/index.ts", {
+				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped/extensions/index.ts`,
+				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped/extensions/index.ts`, {
 					source: "npm:@scope/pi-scoped",
 					scope: "project",
 					origin: "package",
-					baseDir: "/tmp/project/.pi/npm/node_modules/@scope/pi-scoped",
+					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped`,
 				}),
 			},
 			{
-				path: "/tmp/project/.pi/git/github.com/HazAT/pi-interactive-subagents/extensions/index.ts",
+				path: `/tmp/project/${CONFIG_DIR_NAME}/git/github.com/HazAT/pi-interactive-subagents/extensions/index.ts`,
 				sourceInfo: createSourceInfo(
-					"/tmp/project/.pi/git/github.com/HazAT/pi-interactive-subagents/extensions/index.ts",
+					`/tmp/project/${CONFIG_DIR_NAME}/git/github.com/HazAT/pi-interactive-subagents/extensions/index.ts`,
 					{
 						source: "git:github.com/HazAT/pi-interactive-subagents",
 						scope: "project",
 						origin: "package",
-						baseDir: "/tmp/project/.pi/git/github.com/HazAT/pi-interactive-subagents",
+						baseDir: `/tmp/project/${CONFIG_DIR_NAME}/git/github.com/HazAT/pi-interactive-subagents`,
 					},
 				),
 			},
 			{
-				path: "/tmp/project/.pi/git/github.com/HazAT/pi-interactive-subagents/extensions/subagents/index.ts",
+				path: `/tmp/project/${CONFIG_DIR_NAME}/git/github.com/HazAT/pi-interactive-subagents/extensions/subagents/index.ts`,
 				sourceInfo: createSourceInfo(
-					"/tmp/project/.pi/git/github.com/HazAT/pi-interactive-subagents/extensions/subagents/index.ts",
+					`/tmp/project/${CONFIG_DIR_NAME}/git/github.com/HazAT/pi-interactive-subagents/extensions/subagents/index.ts`,
 					{
 						source: "git:github.com/HazAT/pi-interactive-subagents",
 						scope: "project",
 						origin: "package",
-						baseDir: "/tmp/project/.pi/git/github.com/HazAT/pi-interactive-subagents",
+						baseDir: `/tmp/project/${CONFIG_DIR_NAME}/git/github.com/HazAT/pi-interactive-subagents`,
 					},
 				),
 			},
@@ -1026,12 +1028,12 @@ describe("InteractiveMode.showLoadedResources", () => {
 	test("package extensions still strip index.ts correctly (regression guard)", () => {
 		const extensions: ExtensionFixture[] = [
 			{
-				path: "/tmp/project/.pi/npm/node_modules/pi-markdown-preview/extensions/index.ts",
-				sourceInfo: createSourceInfo("/tmp/project/.pi/npm/node_modules/pi-markdown-preview/extensions/index.ts", {
+				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`,
+				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`, {
 					source: "npm:pi-markdown-preview",
 					scope: "project",
 					origin: "package",
-					baseDir: "/tmp/project/.pi/npm/node_modules/pi-markdown-preview",
+					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview`,
 				}),
 			},
 		];
@@ -1054,21 +1056,21 @@ describe("InteractiveMode.showLoadedResources", () => {
 	test("labels npm sibling extensions relative to the declaring package", () => {
 		const extensions: ExtensionFixture[] = [
 			{
-				path: "/tmp/project/.pi/npm/node_modules/primary-package/index.ts",
-				sourceInfo: createSourceInfo("/tmp/project/.pi/npm/node_modules/primary-package/index.ts", {
+				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/primary-package/index.ts`,
+				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/primary-package/index.ts`, {
 					source: "npm:primary-package",
 					scope: "project",
 					origin: "package",
-					baseDir: "/tmp/project/.pi/npm/node_modules/primary-package",
+					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/primary-package`,
 				}),
 			},
 			{
-				path: "/tmp/project/.pi/npm/node_modules/sibling-package/index.ts",
-				sourceInfo: createSourceInfo("/tmp/project/.pi/npm/node_modules/sibling-package/index.ts", {
+				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/sibling-package/index.ts`,
+				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/sibling-package/index.ts`, {
 					source: "npm:primary-package",
 					scope: "project",
 					origin: "package",
-					baseDir: "/tmp/project/.pi/npm/node_modules/primary-package",
+					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/primary-package`,
 				}),
 			},
 		];
@@ -1143,8 +1145,8 @@ describe("InteractiveMode.showLoadedResources", () => {
 		expect(normalizeRenderedOutput(fakeThis.loadedResourcesContainer)).toMatchInlineSnapshot(`
 "[Extensions]
   project
-    /tmp/project/.pi/extensions/answer.ts
-    /tmp/project/.pi/extensions/local-index
+    /tmp/project/${CONFIG_DIR_NAME}/extensions/answer.ts
+    /tmp/project/${CONFIG_DIR_NAME}/extensions/local-index
     git:github.com/HazAT/pi-interactive-subagents
       extensions
       extensions/subagents
@@ -1164,7 +1166,7 @@ describe("InteractiveMode.showLoadedResources", () => {
 		const fakeThis = createShowLoadedResourcesThis({
 			quietStartup: false,
 			cwd,
-			contextFiles: [{ path: path.join(home, ".pi", "agent", "AGENTS.md") }, { path: path.join(cwd, "AGENTS.md") }],
+			contextFiles: [{ path: path.join(home, CONFIG_DIR_NAME, "agent", "AGENTS.md") }, { path: path.join(cwd, "AGENTS.md") }],
 		});
 
 		(InteractiveMode as any).prototype.showLoadedResources.call(fakeThis, {
@@ -1173,7 +1175,7 @@ describe("InteractiveMode.showLoadedResources", () => {
 
 		const output = renderAll(fakeThis.loadedResourcesContainer).replace(/\\/g, "/");
 		expect(output).toContain("[Context]");
-		expect(output).toContain("~/.pi/agent/AGENTS.md, AGENTS.md");
+		expect(output).toContain(`~/${CONFIG_DIR_NAME}/agent/AGENTS.md, AGENTS.md`);
 		expect(output).not.toContain(`${cwd.replace(/\\/g, "/")}/AGENTS.md`);
 	});
 
@@ -1182,8 +1184,8 @@ describe("InteractiveMode.showLoadedResources", () => {
 		const fakeThis = createShowLoadedResourcesThis({
 			quietStartup: false,
 			cwd,
-			systemPromptSource: { path: path.join(cwd, ".pi", "SYSTEM.md") },
-			appendSystemPromptSources: [{ path: path.join(cwd, ".pi", "APPEND_SYSTEM.md") }],
+			systemPromptSource: { path: path.join(cwd, CONFIG_DIR_NAME, "SYSTEM.md") },
+			appendSystemPromptSources: [{ path: path.join(cwd, CONFIG_DIR_NAME, "APPEND_SYSTEM.md") }],
 			contextFiles: [{ path: path.join(cwd, "AGENTS.md") }],
 		});
 
@@ -1193,7 +1195,7 @@ describe("InteractiveMode.showLoadedResources", () => {
 
 		const output = renderAll(fakeThis.loadedResourcesContainer).replace(/\\/g, "/");
 		expect(output).toContain("[Context]");
-		expect(output).toContain(".pi/SYSTEM.md, .pi/APPEND_SYSTEM.md, AGENTS.md");
+		expect(output).toContain(`${CONFIG_DIR_NAME}/SYSTEM.md, ${CONFIG_DIR_NAME}/APPEND_SYSTEM.md, AGENTS.md`);
 	});
 
 	test("shows full context paths when expanded", () => {
@@ -1203,7 +1205,7 @@ describe("InteractiveMode.showLoadedResources", () => {
 			quietStartup: false,
 			toolOutputExpanded: true,
 			cwd,
-			contextFiles: [{ path: path.join(home, ".pi", "agent", "AGENTS.md") }, { path: path.join(cwd, "AGENTS.md") }],
+			contextFiles: [{ path: path.join(home, CONFIG_DIR_NAME, "agent", "AGENTS.md") }, { path: path.join(cwd, "AGENTS.md") }],
 		});
 
 		(InteractiveMode as any).prototype.showLoadedResources.call(fakeThis, {
@@ -1212,9 +1214,9 @@ describe("InteractiveMode.showLoadedResources", () => {
 
 		const output = renderAll(fakeThis.loadedResourcesContainer).replace(/\\/g, "/");
 		expect(output).toContain("[Context]");
-		expect(output).toContain("~/.pi/agent/AGENTS.md");
+		expect(output).toContain(`~/${CONFIG_DIR_NAME}/agent/AGENTS.md`);
 		expect(output).toContain("~/Development/pi-mono/AGENTS.md");
-		expect(output).not.toContain("~/.pi/agent/AGENTS.md, AGENTS.md");
+		expect(output).not.toContain(`~/${CONFIG_DIR_NAME}/agent/AGENTS.md, AGENTS.md`);
 	});
 
 	test("does not show verbose listing on quiet startup during reload", () => {
