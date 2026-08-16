@@ -1,6 +1,6 @@
-import type Anthropic from "@anthropic-ai/sdk";
 import { Type } from "typebox";
 import { describe, expect, it } from "vitest";
+import type { AnthropicMessagesClient } from "../src/api/anthropic-http-client.ts";
 import { stream as streamAnthropic } from "../src/api/anthropic-messages.ts";
 import { getModel } from "../src/compat.ts";
 import type { Context, ToolCall } from "../src/types.ts";
@@ -68,14 +68,14 @@ const minimalAnthropicEvents = [
 	},
 ];
 
-function createFakeAnthropicClient(response: Response): Anthropic {
+function createFakeAnthropicClient(response: Response): AnthropicMessagesClient {
 	return {
 		messages: {
 			create: () => ({
 				asResponse: async () => response,
 			}),
 		},
-	} as unknown as Anthropic;
+	};
 }
 
 describe("Anthropic raw SSE parsing", () => {

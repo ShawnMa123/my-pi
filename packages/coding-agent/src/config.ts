@@ -485,15 +485,25 @@ try {
 }
 
 const piConfigName: string | undefined = pkg.piConfig?.name;
-export const PACKAGE_NAME: string = pkg.name || "@earendil-works/pi-coding-agent";
+export const PACKAGE_NAME: string = pkg.name || "@shawnma/pi-coding-agent";
 export const APP_NAME: string = piConfigName || "pi";
 export const APP_TITLE: string = piConfigName ? APP_NAME : "π";
 export const CONFIG_DIR_NAME: string = pkg.piConfig?.configDir || ".pi";
 export const VERSION: string = pkg.version || "0.0.0";
 
-// e.g., PI_CODING_AGENT_DIR or TAU_CODING_AGENT_DIR
-export const ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`;
-export const ENV_SESSION_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_SESSION_DIR`;
+/** Sanitize app name into a safe env-var prefix (my-pi -> MY_PI). */
+function toEnvPrefix(appName: string): string {
+	return appName
+		.toUpperCase()
+		.replace(/[^A-Z0-9]+/g, "_")
+		.replace(/^_+|_+$/g, "");
+}
+
+const ENV_PREFIX = toEnvPrefix(APP_NAME);
+
+// e.g., PI_CODING_AGENT_DIR or MY_PI_CODING_AGENT_DIR
+export const ENV_AGENT_DIR = `${ENV_PREFIX}_CODING_AGENT_DIR`;
+export const ENV_SESSION_DIR = `${ENV_PREFIX}_CODING_AGENT_SESSION_DIR`;
 
 export function expandTildePath(path: string): string {
 	return normalizePath(path);

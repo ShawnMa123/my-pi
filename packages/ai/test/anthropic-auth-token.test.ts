@@ -11,7 +11,7 @@ const mockState = vi.hoisted(() => ({
 	createParams: undefined as Record<string, unknown> | undefined,
 }));
 
-vi.mock("@anthropic-ai/sdk", () => {
+vi.mock("../src/api/anthropic-http-client.ts", () => {
 	function createSseResponse(): Response {
 		const body = [
 			`event: message_start\ndata: ${JSON.stringify({
@@ -35,7 +35,7 @@ vi.mock("@anthropic-ai/sdk", () => {
 		});
 	}
 
-	class FakeAnthropic {
+	class FakeAnthropicHttpClient {
 		constructor(opts: Record<string, unknown>) {
 			mockState.constructorOpts = opts;
 		}
@@ -49,7 +49,10 @@ vi.mock("@anthropic-ai/sdk", () => {
 		};
 	}
 
-	return { default: FakeAnthropic };
+	return {
+		AnthropicHttpClient: FakeAnthropicHttpClient,
+		AnthropicApiError: class AnthropicApiError extends Error {},
+	};
 });
 
 const neverAbortedSignal = new AbortController().signal;

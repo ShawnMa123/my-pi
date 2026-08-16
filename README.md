@@ -5,18 +5,22 @@
 </p>
 <p align="center">
   <a href="https://discord.com/invite/3cU7Bz4UPx"><img alt="Discord" src="https://img.shields.io/badge/discord-community-5865F2?style=flat-square&logo=discord&logoColor=white" /></a>
-  <a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent"><img alt="npm" src="https://img.shields.io/npm/v/@earendil-works/pi-coding-agent?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/@shawnma/pi-coding-agent"><img alt="npm" src="https://img.shields.io/npm/v/@shawnma/pi-coding-agent?style=flat-square" /></a>
 </p>
 
 > New issues and PRs from new contributors are auto-closed by default. Maintainers review auto-closed issues daily. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-# Pi Agent Harness
+# my-pi (fork of Pi Agent Harness)
 
-This is the home of the Pi agent harness project including our self extensible coding agent.
+Based on [earendil-works/pi](https://github.com/earendil-works/pi). This fork publishes under `@shawnma/*`, installs the CLI as `my-pi`, and uses `~/.my-pi` for config so it can coexist with upstream `pi`.
 
-* **[@earendil-works/pi-coding-agent](packages/coding-agent)**: Interactive coding agent CLI
-* **[@earendil-works/pi-agent-core](packages/agent)**: Agent runtime with tool calling and state management
-* **[@earendil-works/pi-ai](packages/ai)**: Unified multi-provider LLM API (OpenAI, Anthropic, Google, …)
+Notable fork change: `@shawnma/pi-ai` does **not** depend on `@anthropic-ai/sdk` (Anthropic Messages uses an in-repo HTTP client). The anthropic-messages protocol remains for Anthropic-compatible providers.
+
+Upstream project: Pi agent harness including a self-extensible coding agent.
+
+* **[@shawnma/pi-coding-agent](packages/coding-agent)**: Interactive coding agent CLI
+* **[@shawnma/pi-agent-core](packages/agent)**: Agent runtime with tool calling and state management
+* **[@shawnma/pi-ai](packages/ai)**: Unified multi-provider LLM API (OpenAI, Anthropic, Google, …)
 
 To learn more about Pi:
 
@@ -27,11 +31,11 @@ To learn more about Pi:
 
 | Package | Description |
 |---------|-------------|
-| **[@earendil-works/pi-telemetry](packages/telemetry)** | Vendor-neutral telemetry contracts, reference adapter, conformance tests, and typed schemas |
-| **[@earendil-works/pi-ai](packages/ai)** | Unified multi-provider LLM API (OpenAI, Anthropic, Google, etc.) |
-| **[@earendil-works/pi-agent-core](packages/agent)** | Agent runtime with tool calling and state management |
-| **[@earendil-works/pi-coding-agent](packages/coding-agent)** | Interactive coding agent CLI |
-| **[@earendil-works/pi-tui](packages/tui)** | Terminal UI library with differential rendering |
+| **[@shawnma/pi-telemetry](packages/telemetry)** | Vendor-neutral telemetry contracts, reference adapter, conformance tests, and typed schemas |
+| **[@shawnma/pi-ai](packages/ai)** | Unified multi-provider LLM API (OpenAI, Anthropic, Google, etc.) |
+| **[@shawnma/pi-agent-core](packages/agent)** | Agent runtime with tool calling and state management |
+| **[@shawnma/pi-coding-agent](packages/coding-agent)** | Interactive coding agent CLI |
+| **[@shawnma/pi-tui](packages/tui)** | Terminal UI library with differential rendering |
 
 For Slack/chat automation and workflows see [earendil-works/pi-chat](https://github.com/earendil-works/pi-chat).
 

@@ -9,7 +9,7 @@ const mockState = vi.hoisted(() => ({
 	createParams: undefined as Record<string, unknown> | undefined,
 }));
 
-vi.mock("@anthropic-ai/sdk", () => {
+vi.mock("../src/api/anthropic-http-client.ts", () => {
 	function createSseResponse(): Response {
 		const body = [
 			`event: message_start\ndata: ${JSON.stringify({
@@ -24,6 +24,7 @@ vi.mock("@anthropic-ai/sdk", () => {
 				delta: { stop_reason: "end_turn" },
 				usage: { output_tokens: 5 },
 			})}\n`,
+			`event: message_stop\ndata: ${JSON.stringify({ type: "message_stop" })}\n`,
 		].join("\n");
 
 		return new Response(body, {
@@ -32,7 +33,7 @@ vi.mock("@anthropic-ai/sdk", () => {
 		});
 	}
 
-	class FakeAnthropic {
+	class FakeAnthropicHttpClient {
 		constructor(opts: Record<string, unknown>) {
 			mockState.constructorOpts = opts;
 		}
@@ -46,7 +47,10 @@ vi.mock("@anthropic-ai/sdk", () => {
 		};
 	}
 
-	return { default: FakeAnthropic };
+	return {
+		AnthropicHttpClient: FakeAnthropicHttpClient,
+		AnthropicApiError: class AnthropicApiError extends Error {},
+	};
 });
 
 describe("Copilot Claude via Anthropic Messages", () => {

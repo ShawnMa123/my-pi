@@ -8,8 +8,8 @@ import type {
 	Session as CoreSession,
 	Entry,
 	MessageEntry,
-} from "@earendil-works/pi-agent-core";
-import type { Usage } from "@earendil-works/pi-ai";
+} from "@shawnma/pi-agent-core";
+import type { Usage } from "@shawnma/pi-ai";
 import { afterEach, vi } from "vitest";
 import type { SqliteDatabaseFactory, SqliteSessionMetadata } from "../src/index.ts";
 
