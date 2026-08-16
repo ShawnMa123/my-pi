@@ -64,6 +64,16 @@ npm run check         # Lint, format, and type check
 ./pi-test.sh         # Run pi from sources (can be run from any directory)
 ```
 
+## Publishing to npm
+
+This fork uses **npm Trusted Publishing** (GitHub Actions OIDC). No long-lived npm token and no bypass-2FA automation token.
+
+See [docs/npm-trusted-publishing.md](docs/npm-trusted-publishing.md). Short version:
+
+1. On npmjs.com, add a Trusted Publisher for each `@shawnma/*` package → GitHub `ShawnMa123/my-pi`, workflow `publish-npm.yml`, environment `npm-publish`.
+2. Push a version tag: `git tag v0.84.2 && git push origin v0.84.2`
+3. Workflow [.github/workflows/publish-npm.yml](.github/workflows/publish-npm.yml) builds, checks, and runs `node scripts/publish.mjs`.
+
 ## Building standalone binaries from release source
 
 GitHub releases include a versioned source archive covered by the release's `SHA256SUMS` file. Extract it and run the same build script used for the official standalone binaries:
