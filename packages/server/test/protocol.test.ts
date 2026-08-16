@@ -1,5 +1,5 @@
-import type { Api, AssistantMessage, Model, ToolCall, ToolResultMessage, UserMessage } from "@earendil-works/pi-ai";
-import { encodeServerMessage, PROTOCOL_VERSION } from "@earendil-works/pi-protocol";
+import type { Api, AssistantMessage, Model, ToolCall, ToolResultMessage, UserMessage } from "@shawnma/pi-ai";
+import { encodeServerMessage, PROTOCOL_VERSION } from "@shawnma/pi-protocol";
 import { describe, expect, test } from "vitest";
 import {
 	sanitizeProtocolDetails,
