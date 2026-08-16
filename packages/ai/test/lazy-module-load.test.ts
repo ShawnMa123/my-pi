@@ -78,7 +78,7 @@ describe("lazy provider module loading", () => {
 		expect(result.loadedSpecifiers).toEqual([]);
 	});
 
-	it("loads only the Anthropic SDK when streaming through the lazy API wrapper", () => {
+	it("does not load provider SDKs when streaming Anthropic through the lazy API wrapper", () => {
 		const result = runProbe(`
 			const compat = await import(${JSON.stringify(compatEntryUrl)});
 			const model = {
@@ -94,20 +94,29 @@ describe("lazy provider module loading", () => {
 				maxTokens: 8192,
 			};
 			const context = { messages: [{ role: "user", content: "hi" }] };
-			await compat.anthropicMessagesApi().streamSimple(model, context).result();
+			// Fail the request quickly; we only care which SDK modules resolve.
+			try {
+				await compat.anthropicMessagesApi().streamSimple(model, context, { apiKey: "test-key" }).result();
+			} catch {
+				// expected without a live Anthropic endpoint
+			}
 		`);
 
-		expect(result.loadedSpecifiers).toEqual(["@anthropic-ai/sdk"]);
+		expect(result.loadedSpecifiers).toEqual([]);
 	});
 
-	it("loads only the Anthropic SDK when dispatching through streamSimple", () => {
+	it("does not load provider SDKs when dispatching Anthropic through streamSimple", () => {
 		const result = runProbe(`
 			const compat = await import(${JSON.stringify(compatEntryUrl)});
 			const model = compat.getModel("anthropic", "claude-sonnet-4-6");
 			const context = { messages: [{ role: "user", content: "hi" }] };
-			await compat.streamSimple(model, context).result();
+			try {
+				await compat.streamSimple(model, context, { apiKey: "test-key" }).result();
+			} catch {
+				// expected without a live Anthropic endpoint
+			}
 		`);
 
-		expect(result.loadedSpecifiers).toEqual(["@anthropic-ai/sdk"]);
+		expect(result.loadedSpecifiers).toEqual([]);
 	});
 });

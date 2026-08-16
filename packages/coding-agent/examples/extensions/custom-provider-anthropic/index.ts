@@ -21,8 +21,6 @@
  * Then use /model to select custom-anthropic/claude-sonnet-4-5
  */
 
-import Anthropic from "@anthropic-ai/sdk";
-import type { ContentBlockParam, MessageCreateParamsStreaming } from "@anthropic-ai/sdk/resources/messages.js";
 import {
 	type Api,
 	type AssistantMessage,
@@ -43,6 +41,8 @@ import {
 	type ToolCall,
 	type ToolResultMessage,
 } from "@shawnma/pi-ai";
+import { AnthropicHttpClient } from "@shawnma/pi-ai/api/anthropic-http-client";
+import type { ContentBlockParam, MessageCreateParamsStreaming } from "@shawnma/pi-ai/api/anthropic-types";
 import type { ExtensionAPI } from "@shawnma/pi-coding-agent";
 
 // =============================================================================
@@ -362,33 +362,30 @@ function streamCustomAnthropic(
 			const apiKey = options?.apiKey ?? "";
 			const isOAuth = isOAuthToken(apiKey);
 
-			// Configure client based on auth type
+			// Configure client based on auth type (in-repo HTTP client; no @anthropic-ai/sdk)
 			const betaFeatures = ["fine-grained-tool-streaming-2025-05-14", "interleaved-thinking-2025-05-14"];
-			const clientOptions: any = {
-				baseURL: model.baseUrl,
-				dangerouslyAllowBrowser: true,
-			};
-
-			if (isOAuth) {
-				clientOptions.apiKey = null;
-				clientOptions.authToken = apiKey;
-				clientOptions.defaultHeaders = {
-					accept: "application/json",
-					"anthropic-dangerous-direct-browser-access": "true",
-					"anthropic-beta": `claude-code-20250219,oauth-2025-04-20,${betaFeatures.join(",")}`,
-					"user-agent": "claude-cli/2.1.2 (external, cli)",
-					"x-app": "cli",
-				};
-			} else {
-				clientOptions.apiKey = apiKey;
-				clientOptions.defaultHeaders = {
-					accept: "application/json",
-					"anthropic-dangerous-direct-browser-access": "true",
-					"anthropic-beta": betaFeatures.join(","),
-				};
-			}
-
-			const client = new Anthropic(clientOptions);
+			const client = isOAuth
+				? new AnthropicHttpClient({
+						apiKey: null,
+						authToken: apiKey,
+						baseURL: model.baseUrl,
+						defaultHeaders: {
+							accept: "application/json",
+							"anthropic-dangerous-direct-browser-access": "true",
+							"anthropic-beta": `claude-code-20250219,oauth-2025-04-20,${betaFeatures.join(",")}`,
+							"user-agent": "claude-cli/2.1.2 (external, cli)",
+							"x-app": "cli",
+						},
+					})
+				: new AnthropicHttpClient({
+						apiKey,
+						baseURL: model.baseUrl,
+						defaultHeaders: {
+							accept: "application/json",
+							"anthropic-dangerous-direct-browser-access": "true",
+							"anthropic-beta": betaFeatures.join(","),
+						},
+					});
 
 			// Build request params
 			const params: MessageCreateParamsStreaming = {

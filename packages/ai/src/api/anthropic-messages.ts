@@ -1,12 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
-import type {
-	CacheControlEphemeral,
-	ContentBlockParam,
-	MessageCreateParamsStreaming,
-	MessageParam,
-	RawMessageStreamEvent,
-	RefusalStopDetails,
-} from "@anthropic-ai/sdk/resources/messages.js";
 import { calculateCost } from "../models.ts";
 import type {
 	AnthropicMessagesCompat,
@@ -38,6 +29,17 @@ import { getProviderEnvValue } from "../utils/provider-env.ts";
 import { retryProviderRequest } from "../utils/provider-retry.ts";
 import { sanitizeSurrogates } from "../utils/sanitize-unicode.ts";
 
+import { AnthropicHttpClient, type AnthropicMessagesClient } from "./anthropic-http-client.ts";
+import type {
+	AnthropicStopReason,
+	AnthropicToolDefinition,
+	CacheControlEphemeral,
+	ContentBlockParam,
+	MessageCreateParamsStreaming,
+	MessageParam,
+	RawMessageStreamEvent,
+	RefusalStopDetails,
+} from "./anthropic-types.ts";
 import { getJsonSchemaToolParameters, resolveJsonSchemaStrictSampling } from "./constrained-sampling.ts";
 import { buildCopilotDynamicHeaders, hasCopilotVisionInput } from "./github-copilot-headers.ts";
 import { adjustMaxTokensForThinking, buildBaseOptions, clampMaxTokensToContext } from "./simple-options.ts";
@@ -255,11 +257,11 @@ export interface AnthropicOptions extends StreamOptions {
 	 */
 	toolChoice?: "auto" | "any" | "none" | { type: "tool"; name: string };
 	/**
-	 * Pre-built Anthropic client instance. When provided, skips internal client
-	 * construction entirely. Use this to inject alternative SDK clients such as
-	 * `AnthropicVertex` that shares the same messaging API.
+	 * Pre-built Anthropic Messages client. When provided, skips internal client
+	 * construction entirely. Use this to inject alternative transports that share
+	 * the same `messages.create(...).asResponse()` surface.
 	 */
-	client?: Anthropic;
+	client?: AnthropicMessagesClient;
 }
 
 function mergeHeaders(...headerSources: (ProviderHeaders | undefined)[]): ProviderHeaders {
@@ -526,7 +528,7 @@ export const stream: StreamFunction<"anthropic-messages", AnthropicOptions> = (
 		};
 
 		try {
-			let client: Anthropic;
+			let client: AnthropicMessagesClient;
 			let isOAuth: boolean;
 
 			if (options?.client) {
@@ -744,10 +746,8 @@ export const stream: StreamFunction<"anthropic-messages", AnthropicOptions> = (
 							output.usage.cacheWrite = event.usage.cache_creation_input_tokens;
 						}
 						// Anthropic reports reasoning tokens in `output_tokens_details.thinking_tokens` on the
-						// final message_delta usage (a subset of output_tokens). SDK 0.91.1 omits the field from
-						// its Usage type, so read it through a narrow cast. Verified against the live API.
-						const thinkingTokens = (event.usage as { output_tokens_details?: { thinking_tokens?: number } })
-							.output_tokens_details?.thinking_tokens;
+						// final message_delta usage (a subset of output_tokens).
+						const thinkingTokens = event.usage.output_tokens_details?.thinking_tokens;
 						if (thinkingTokens != null) {
 							output.usage.reasoning = thinkingTokens;
 						}
@@ -868,7 +868,7 @@ function createClient(
 	fetch?: typeof globalThis.fetch,
 	dynamicHeaders?: Record<string, string>,
 	sessionId?: string,
-): { client: Anthropic; isOAuthToken: boolean } {
+): { client: AnthropicMessagesClient; isOAuthToken: boolean } {
 	// Adaptive thinking models have interleaved thinking built in, so skip the beta header.
 	const needsInterleavedBeta = interleavedThinking && model.compat?.forceAdaptiveThinking !== true;
 	const betaFeatures: string[] = [];
@@ -881,11 +881,10 @@ function createClient(
 
 	// Copilot: Bearer auth, selective betas.
 	if (model.provider === "github-copilot") {
-		const client = new Anthropic({
+		const client = new AnthropicHttpClient({
 			apiKey: null,
 			authToken: apiKey ?? null,
 			baseURL: model.baseUrl,
-			dangerouslyAllowBrowser: true,
 			fetch,
 			defaultHeaders: mergeClientHeaders(
 				model,
@@ -905,11 +904,10 @@ function createClient(
 
 	// OAuth: Bearer auth, Claude Code identity headers
 	if (apiKey && isOAuthToken(apiKey)) {
-		const client = new Anthropic({
+		const client = new AnthropicHttpClient({
 			apiKey: null,
 			authToken: apiKey,
 			baseURL: model.baseUrl,
-			dangerouslyAllowBrowser: true,
 			fetch,
 			defaultHeaders: mergeClientHeaders(
 				model,
@@ -942,11 +940,10 @@ function createClient(
 		model.headers,
 		optionsHeaders,
 	);
-	const client = new Anthropic({
+	const client = new AnthropicHttpClient({
 		apiKey: apiKey ?? null,
 		authToken: null,
 		baseURL: model.baseUrl,
-		dangerouslyAllowBrowser: true,
 		fetch,
 		defaultHeaders,
 	});
@@ -1052,13 +1049,7 @@ function buildParams(
 				// Adaptive thinking: Claude decides when and how much to think.
 				params.thinking = { type: "adaptive", display };
 				if (options.effort) {
-					// The Anthropic SDK types can lag newly supported effort values such as "xhigh".
-					params.output_config =
-						options.effort === "xhigh"
-							? ({ effort: options.effort } as unknown as NonNullable<
-									MessageCreateParamsStreaming["output_config"]
-								>)
-							: { effort: options.effort };
+					params.output_config = { effort: options.effort };
 				}
 			} else {
 				// Budget-based thinking for older models
@@ -1309,7 +1300,7 @@ function convertTools(
 	supportsStrictTools: boolean,
 	cacheControl?: CacheControlEphemeral,
 	deferLoading = false,
-): Anthropic.Messages.Tool[] {
+): AnthropicToolDefinition[] {
 	if (!tools) return [];
 
 	return tools.map((tool, index) => {
@@ -1342,7 +1333,7 @@ function convertTools(
 }
 
 function mapStopReason(
-	reason: Anthropic.Messages.StopReason | string,
+	reason: AnthropicStopReason | string,
 	stopDetails?: RefusalStopDetails | null,
 ): { stopReason: StopReason; errorMessage?: string } {
 	switch (reason) {
