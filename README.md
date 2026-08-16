@@ -10,9 +10,13 @@
 
 > New issues and PRs from new contributors are auto-closed by default. Maintainers review auto-closed issues daily. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-# Pi Agent Harness
+# my-pi (fork of Pi Agent Harness)
 
-This is the home of the Pi agent harness project including our self extensible coding agent.
+Based on [earendil-works/pi](https://github.com/earendil-works/pi). This fork publishes under `@shawnma/*`, installs the CLI as `my-pi`, and uses `~/.my-pi` for config so it can coexist with upstream `pi`.
+
+Notable fork change: `@shawnma/pi-ai` does **not** depend on `@anthropic-ai/sdk` (Anthropic Messages uses an in-repo HTTP client). The anthropic-messages protocol remains for Anthropic-compatible providers.
+
+Upstream project: Pi agent harness including a self-extensible coding agent.
 
 * **[@shawnma/pi-coding-agent](packages/coding-agent)**: Interactive coding agent CLI
 * **[@shawnma/pi-agent-core](packages/agent)**: Agent runtime with tool calling and state management

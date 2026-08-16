@@ -21,18 +21,21 @@ The script can be run from any directory. Pi keeps the caller's current working 
 
 ## Forking / Rebranding
 
-Configure via `package.json`:
+This repository is already rebranded as **my-pi**:
 
 ```json
 {
   "piConfig": {
-    "name": "pi",
-    "configDir": ".pi"
+    "name": "my-pi",
+    "configDir": ".my-pi"
+  },
+  "bin": {
+    "my-pi": "dist/cli.js"
   }
 }
 ```
 
-Change `name`, `configDir`, and `bin` field for your fork. Affects CLI banner, config paths, and environment variable names.
+`name`, `configDir`, and `bin` affect CLI banner, config paths, and environment variable names. Non-alphanumeric characters in `name` are sanitized to underscores for env prefixes (`my-pi` → `MY_PI_CODING_AGENT_DIR`).
 
 ## Path Resolution
 

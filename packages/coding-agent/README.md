@@ -12,11 +12,13 @@
 
 ---
 
-Pi is a minimal terminal coding harness. Adapt pi to your workflows, not the other way around, without having to fork and modify pi internals. Extend it with TypeScript [Extensions](#extensions), [Skills](#skills), [Prompt Templates](#prompt-templates), and [Themes](#themes). Put your extensions, skills, prompt templates, and themes in [Pi Packages](#pi-packages) and share them with others via npm or git.
+**my-pi** is a fork of [earendil-works/pi](https://github.com/earendil-works/pi) published as `@shawnma/pi-coding-agent`. The CLI command is `my-pi` and config lives under `~/.my-pi` (isolated from upstream `~/.pi`).
 
-Pi ships with powerful defaults but skips features like sub agents and plan mode. Instead, you can ask pi to build what you want or install a third party pi package that matches your workflow.
+Upstream Pi is a minimal terminal coding harness. Adapt it to your workflows without forking internals: TypeScript [Extensions](#extensions), [Skills](#skills), [Prompt Templates](#prompt-templates), and [Themes](#themes). Put resources in [Pi Packages](#pi-packages) and share via npm or git.
 
-Pi runs in four modes: interactive, print or JSON, RPC for process integration, and an SDK for embedding in your own apps.
+It ships with powerful defaults but skips features like sub agents and plan mode. Instead, ask the agent to build what you want or install a third-party package that matches your workflow.
+
+Runs in four modes: interactive, print or JSON, RPC for process integration, and an SDK for embedding in your own apps.
 
 ## Share your OSS coding agent sessions
 
@@ -66,25 +68,19 @@ I regularly publish my own `pi-mono` work sessions here:
 npm install -g --ignore-scripts @shawnma/pi-coding-agent
 ```
 
-`--ignore-scripts` disables dependency lifecycle scripts during install. Pi does not require install scripts for normal npm installs.
-
-Installer alternative:
-
-```bash
-curl -fsSL https://pi.dev/install.sh | sh
-```
+`--ignore-scripts` disables dependency lifecycle scripts during install. my-pi does not require install scripts for normal npm installs.
 
 Authenticate with an API key:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-pi
+my-pi
 ```
 
 Or use your existing subscription:
 
 ```bash
-pi
+my-pi
 /login  # Then select provider
 ```
 
@@ -669,8 +665,8 @@ pi --thinking high "Solve this complex problem"
 |----------|-------------|
 | `AI_AGENT` | Set to `pi` by the CLI and RPC entry points so generic tooling can attribute child processes to Pi |
 | `PI_CODING_AGENT` | Set to `true` by the CLI and RPC entry points so child processes can detect that they run inside Pi |
-| `PI_CODING_AGENT_DIR` | Override config directory (default: `~/.pi/agent`) |
-| `PI_CODING_AGENT_SESSION_DIR` | Override session storage directory (overridden by `--session-dir`) |
+| `MY_PI_CODING_AGENT_DIR` | Override config directory (default: `~/.my-pi/agent`) |
+| `MY_PI_CODING_AGENT_SESSION_DIR` | Override session storage directory (overridden by `--session-dir`) |
 | `PI_PACKAGE_DIR` | Override package directory (useful for Nix/Guix where store paths tokenize poorly) |
 | `PI_OFFLINE` | Disable startup network operations, including update checks, package update checks, and install/update telemetry |
 | `PI_SKIP_VERSION_CHECK` | Skip the Pi version update check at startup. This prevents the `pi.dev` latest-version request |
