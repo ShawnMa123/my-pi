@@ -5,13 +5,12 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 import { type Component, Container, type Focusable, type TUI } from "../../tui/src/tui.ts";
 import { TuiMainScreen } from "../../tui/src/tui-main-screen.ts";
 import { VirtualTerminal } from "../../tui/test/virtual-terminal.ts";
+import { CONFIG_DIR_NAME } from "../src/config.ts";
 import type { AutocompleteProviderFactory } from "../src/core/extensions/types.ts";
 import type { SourceInfo } from "../src/core/source-info.ts";
 import type { AuthSelectorProvider } from "../src/modes/interactive/components/oauth-selector.ts";
 import { InteractiveMode } from "../src/modes/interactive/interactive-mode.ts";
 import { initTheme } from "../src/modes/interactive/theme/theme.ts";
-import { CONFIG_DIR_NAME } from "../src/config.ts";
-
 
 function renderLastLine(container: Container, width = 120): string {
 	const last = container.children[container.children.length - 1];
@@ -649,21 +648,27 @@ describe("InteractiveMode.showLoadedResources", () => {
 			},
 			{
 				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`,
-				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`, {
-					source: "npm:pi-markdown-preview",
-					scope: "project",
-					origin: "package",
-					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview`,
-				}),
+				sourceInfo: createSourceInfo(
+					`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`,
+					{
+						source: "npm:pi-markdown-preview",
+						scope: "project",
+						origin: "package",
+						baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview`,
+					},
+				),
 			},
 			{
 				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped/extensions/index.ts`,
-				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped/extensions/index.ts`, {
-					source: "npm:@scope/pi-scoped",
-					scope: "project",
-					origin: "package",
-					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped`,
-				}),
+				sourceInfo: createSourceInfo(
+					`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped/extensions/index.ts`,
+					{
+						source: "npm:@scope/pi-scoped",
+						scope: "project",
+						origin: "package",
+						baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/@scope/pi-scoped`,
+					},
+				),
 			},
 			{
 				path: `/tmp/project/${CONFIG_DIR_NAME}/git/github.com/HazAT/pi-interactive-subagents/extensions/index.ts`,
@@ -1029,12 +1034,15 @@ describe("InteractiveMode.showLoadedResources", () => {
 		const extensions: ExtensionFixture[] = [
 			{
 				path: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`,
-				sourceInfo: createSourceInfo(`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`, {
-					source: "npm:pi-markdown-preview",
-					scope: "project",
-					origin: "package",
-					baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview`,
-				}),
+				sourceInfo: createSourceInfo(
+					`/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview/extensions/index.ts`,
+					{
+						source: "npm:pi-markdown-preview",
+						scope: "project",
+						origin: "package",
+						baseDir: `/tmp/project/${CONFIG_DIR_NAME}/npm/node_modules/pi-markdown-preview`,
+					},
+				),
 			},
 		];
 
@@ -1166,7 +1174,10 @@ describe("InteractiveMode.showLoadedResources", () => {
 		const fakeThis = createShowLoadedResourcesThis({
 			quietStartup: false,
 			cwd,
-			contextFiles: [{ path: path.join(home, CONFIG_DIR_NAME, "agent", "AGENTS.md") }, { path: path.join(cwd, "AGENTS.md") }],
+			contextFiles: [
+				{ path: path.join(home, CONFIG_DIR_NAME, "agent", "AGENTS.md") },
+				{ path: path.join(cwd, "AGENTS.md") },
+			],
 		});
 
 		(InteractiveMode as any).prototype.showLoadedResources.call(fakeThis, {
@@ -1205,7 +1216,10 @@ describe("InteractiveMode.showLoadedResources", () => {
 			quietStartup: false,
 			toolOutputExpanded: true,
 			cwd,
-			contextFiles: [{ path: path.join(home, CONFIG_DIR_NAME, "agent", "AGENTS.md") }, { path: path.join(cwd, "AGENTS.md") }],
+			contextFiles: [
+				{ path: path.join(home, CONFIG_DIR_NAME, "agent", "AGENTS.md") },
+				{ path: path.join(cwd, "AGENTS.md") },
+			],
 		});
 
 		(InteractiveMode as any).prototype.showLoadedResources.call(fakeThis, {

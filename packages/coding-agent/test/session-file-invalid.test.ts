@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { ENV_AGENT_DIR, APP_NAME } from "../src/config.ts";
+import { APP_NAME, ENV_AGENT_DIR } from "../src/config.ts";
 
 const cliPath = resolve(__dirname, "../src/cli.ts");
 const tempDirs: string[] = [];

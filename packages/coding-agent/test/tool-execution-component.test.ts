@@ -2,7 +2,7 @@ import { join, resolve } from "node:path";
 import { Text, type TUI } from "@shawnma/pi-tui";
 import { Type } from "typebox";
 import { beforeAll, describe, expect, test } from "vitest";
-import { getReadmePath, CONFIG_DIR_NAME } from "../src/config.ts";
+import { CONFIG_DIR_NAME, getReadmePath } from "../src/config.ts";
 import type { ToolDefinition } from "../src/core/extensions/types.ts";
 import { type BashOperations, createBashToolDefinition } from "../src/core/tools/bash.ts";
 import { createReadTool, createReadToolDefinition } from "../src/core/tools/read.ts";

@@ -10,6 +10,7 @@ import { Agent } from "@shawnma/pi-agent-core";
 import type { OAuthCredentials } from "@shawnma/pi-ai";
 import { getModel, streamSimple } from "@shawnma/pi-ai/compat";
 import { builtinProviders } from "@shawnma/pi-ai/providers/all";
+import { CONFIG_DIR_NAME } from "../src/config.ts";
 import { AgentSession } from "../src/core/agent-session.ts";
 import { AuthStorage } from "../src/core/auth-storage.ts";
 import { createEventBus } from "../src/core/event-bus.ts";
@@ -24,8 +25,6 @@ import type { ResourceLoader } from "../src/core/resource-loader.ts";
 import { SessionManager } from "../src/core/session-manager.ts";
 import { SettingsManager } from "../src/core/settings-manager.ts";
 import { createCodingTools } from "../src/index.ts";
-import { CONFIG_DIR_NAME } from "../src/config.ts";
-
 
 /**
  * API key for authenticated tests. Tests using this should be wrapped in

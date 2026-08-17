@@ -2,10 +2,9 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { CONFIG_DIR_NAME } from "../src/config.ts";
 import { DEFAULT_HTTP_IDLE_TIMEOUT_MS } from "../src/core/http-dispatcher.ts";
 import { SettingsManager } from "../src/core/settings-manager.ts";
-import { CONFIG_DIR_NAME } from "../src/config.ts";
-
 
 describe("SettingsManager", () => {
 	const testDir = join(process.cwd(), "test-settings-tmp");
@@ -273,7 +272,10 @@ describe("SettingsManager", () => {
 
 		it("should read default project trust from global settings only", () => {
 			writeFileSync(join(agentDir, "settings.json"), JSON.stringify({ defaultProjectTrust: "always" }));
-			writeFileSync(join(projectDir, CONFIG_DIR_NAME, "settings.json"), JSON.stringify({ defaultProjectTrust: "never" }));
+			writeFileSync(
+				join(projectDir, CONFIG_DIR_NAME, "settings.json"),
+				JSON.stringify({ defaultProjectTrust: "never" }),
+			);
 
 			const manager = SettingsManager.create(projectDir, agentDir);
 
@@ -560,7 +562,10 @@ describe("SettingsManager", () => {
 
 		it("should return project sessionDir, overriding global", () => {
 			writeFileSync(join(agentDir, "settings.json"), JSON.stringify({ sessionDir: "/global/sessions" }));
-			writeFileSync(join(projectDir, CONFIG_DIR_NAME, "settings.json"), JSON.stringify({ sessionDir: "./sessions" }));
+			writeFileSync(
+				join(projectDir, CONFIG_DIR_NAME, "settings.json"),
+				JSON.stringify({ sessionDir: "./sessions" }),
+			);
 			const manager = SettingsManager.create(projectDir, agentDir);
 			expect(manager.getSessionDir()).toBe("./sessions");
 		});

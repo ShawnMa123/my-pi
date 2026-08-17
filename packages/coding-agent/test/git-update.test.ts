@@ -11,11 +11,10 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { CONFIG_DIR_NAME } from "../src/config.ts";
 import { DefaultPackageManager } from "../src/core/package-manager.ts";
 import { SettingsManager } from "../src/core/settings-manager.ts";
 import { allowNetwork } from "./test-network-env.ts";
-import { CONFIG_DIR_NAME } from "../src/config.ts";
-
 
 // Helper to run git commands in a directory
 function git(args: string[], cwd: string): string {

@@ -4,8 +4,8 @@ import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { PassThrough } from "node:stream";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DefaultPackageManager, type ProgressEvent, type ResolvedResource } from "../src/core/package-manager.ts";
 import { CONFIG_DIR_NAME } from "../src/config.ts";
+import { DefaultPackageManager, type ProgressEvent, type ResolvedResource } from "../src/core/package-manager.ts";
 import { SettingsManager } from "../src/core/settings-manager.ts";
 
 function normalizeForMatch(value: string): string {
@@ -1804,7 +1804,11 @@ Content`,
 			writeFileSync(join(pkgDir, "extensions", "bar.ts"), "export default function() {}");
 			writeFileSync(join(pkgDir, "skills", "foo", "SKILL.md"), "# Foo\n");
 			settingsManager.setProjectPackages([
-				{ source: relative(join(tempDir, CONFIG_DIR_NAME), pkgDir), autoload: false, extensions: ["+extensions/foo.ts"] },
+				{
+					source: relative(join(tempDir, CONFIG_DIR_NAME), pkgDir),
+					autoload: false,
+					extensions: ["+extensions/foo.ts"],
+				},
 			]);
 
 			const result = await packageManager.resolve();
