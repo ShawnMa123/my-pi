@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { homedir, userInfo } from "node:os";
 import { dirname, join } from "node:path";
 import lockfile from "proper-lockfile";
 import { CONFIG_DIR_NAME } from "../config.ts";
@@ -182,8 +182,37 @@ function withTrustFileLock<T>(path: string, fn: () => T): T {
  * trusted user resource and is ignored here, even when cwd is $HOME.
  */
 export function hasTrustRequiringProjectResources(cwd: string): boolean {
-	const homeDir = canonicalizePath(resolvePath(process.env.HOME || homedir()));
-	const userAgentsSkillsDir = join(homeDir, ".agents", "skills");
+	// Ignore global user skill roots. Include HOME/USERPROFILE overrides (tests /
+	// custom layouts) and the real OS user home from userInfo(), which is not
+	// affected by HOME/USERPROFILE env overrides. That keeps Windows paths under
+	// %TEMP% from treating %USERPROFILE%\.agents\skills as project resources.
+	let realUserHome: string | undefined;
+	try {
+		realUserHome = userInfo().homedir;
+	} catch {
+		realUserHome = undefined;
+	}
+	const homeCandidates = [process.env.HOME, process.env.USERPROFILE, homedir(), realUserHome].filter(
+		(value): value is string => typeof value === "string" && value.length > 0,
+	);
+	const userAgentsSkillsDirs = [
+		...new Set(homeCandidates.map((home) => join(canonicalizePath(resolvePath(home)), ".agents", "skills"))),
+	];
+
+	const isSameExistingPath = (left: string, right: string): boolean => {
+		if (left === right) return true;
+		try {
+			const leftStat = statSync(left);
+			const rightStat = statSync(right);
+			return leftStat.dev === rightStat.dev && leftStat.ino === rightStat.ino;
+		} catch {
+			return false;
+		}
+	};
+
+	const isUserAgentsSkillsDir = (path: string): boolean =>
+		userAgentsSkillsDirs.some((userDir) => isSameExistingPath(path, userDir));
+
 	let currentDir = canonicalizePath(resolvePath(cwd));
 
 	const configDir = join(currentDir, CONFIG_DIR_NAME);
@@ -193,7 +222,7 @@ export function hasTrustRequiringProjectResources(cwd: string): boolean {
 
 	while (true) {
 		const agentsSkillsDir = join(currentDir, ".agents", "skills");
-		if (agentsSkillsDir !== userAgentsSkillsDir && existsSync(agentsSkillsDir)) {
+		if (existsSync(agentsSkillsDir) && !isUserAgentsSkillsDir(agentsSkillsDir)) {
 			return true;
 		}
 

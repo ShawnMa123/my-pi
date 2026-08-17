@@ -1,10 +1,4 @@
-import type {
-	ConnectionState,
-	ConnectionStateChange,
-	PiClient,
-	SessionLease,
-	Unsubscribe,
-} from "@shawnma/pi-client";
+import type { ConnectionState, ConnectionStateChange, PiClient, SessionLease, Unsubscribe } from "@shawnma/pi-client";
 import type {
 	ModelMetadata,
 	ModelRef,

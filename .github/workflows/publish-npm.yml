@@ -1,0 +1,112 @@
+# Publish @shawnma/* packages via npm Trusted Publishing (OIDC).
+# No long-lived NPM_TOKEN. No bypass-2FA automation token.
+#
+# Trigger: push tag v* (e.g. v0.84.2) or manual workflow_dispatch.
+#
+# Before the first run, configure each package on npmjs.com as a Trusted Publisher
+# pointing at this repo + workflow file. See docs/npm-trusted-publishing.md.
+
+name: Publish npm packages
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to publish (e.g. v0.84.2). Leave empty to publish the default branch HEAD versions."
+        required: false
+        type: string
+      skip_tests:
+        description: "Skip npm test (not recommended)"
+        required: false
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: publish-npm-${{ github.event.inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Optional GitHub Environment for approval gates / audit log.
+    # Create it under Settings → Environments → npm-publish (no secrets required).
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write # required for npm OIDC trusted publishing + provenance
+    env:
+      SOURCE_REF: ${{ github.event.inputs.tag || github.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+
+      - name: Install system dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev fd-find ripgrep
+          sudo ln -sf "$(which fdfind)" /usr/local/bin/fd
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Hydrate model data
+        run: npm run hydrate:model-data
+
+      - name: Build
+        run: npm run build
+
+      - name: Check
+        run: npm run check
+
+      - name: Test
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.skip_tests != true }}
+        run: npm test
+
+      - name: Upgrade npm for trusted publishing
+        run: |
+          set -euo pipefail
+          # Trusted publishing / OIDC needs a recent npm CLI.
+          npm install -g npm@11.16.0 --ignore-scripts
+          npm --version
+
+      - name: Show publish plan
+        run: node scripts/publish.mjs --dry-run
+
+      - name: Publish npm packages
+        run: node scripts/publish.mjs
+
+      - name: Verify published packages
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import { getPublicWorkspacePackages } from "./scripts/release-packages.mjs";
+          import { spawnSync } from "node:child_process";
+
+          const packages = getPublicWorkspacePackages();
+          let failed = false;
+          for (const pkg of packages) {
+            const result = spawnSync("npm", ["view", `${pkg.name}@${pkg.version}`, "version"], {
+              encoding: "utf8",
+            });
+            const ok = result.status === 0 && result.stdout.trim() === pkg.version;
+            console.log(`${ok ? "OK" : "MISSING"} ${pkg.name}@${pkg.version}`);
+            if (!ok) failed = true;
+          }
+          if (failed) process.exit(1);
+          EOF

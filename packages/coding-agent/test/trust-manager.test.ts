@@ -2,6 +2,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { CONFIG_DIR_NAME } from "../src/config.ts";
 import { hasTrustRequiringProjectResources, ProjectTrustStore } from "../src/core/trust-manager.ts";
 
 describe("ProjectTrustStore", () => {
@@ -38,29 +39,42 @@ describe("ProjectTrustStore", () => {
 
 	it("detects trust-requiring project resources", () => {
 		const originalHome = process.env.HOME;
-		process.env.HOME = tempDir;
+		const originalUserProfile = process.env.USERPROFILE;
+		// Keep the synthetic home under tempDir so parent walks cannot reach a real
+		// user-profile ~/.agents/skills (Windows %TEMP% lives under the profile).
+		const isolatedHome = join(tempDir, "home");
+		const isolatedProject = join(tempDir, "project");
+		mkdirSync(isolatedHome, { recursive: true });
+		mkdirSync(isolatedProject, { recursive: true });
+		process.env.HOME = isolatedHome;
+		process.env.USERPROFILE = isolatedHome;
 		try {
-			mkdirSync(join(tempDir, ".pi", "agent"), { recursive: true });
-			mkdirSync(join(tempDir, ".agents", "skills"), { recursive: true });
-			expect(hasTrustRequiringProjectResources(tempDir)).toBe(false);
-			expect(hasTrustRequiringProjectResources(cwd)).toBe(false);
+			mkdirSync(join(isolatedHome, CONFIG_DIR_NAME, "agent"), { recursive: true });
+			mkdirSync(join(isolatedHome, ".agents", "skills"), { recursive: true });
+			expect(hasTrustRequiringProjectResources(isolatedHome)).toBe(false);
+			expect(hasTrustRequiringProjectResources(isolatedProject)).toBe(false);
 
-			writeFileSync(join(tempDir, ".pi", "settings.json"), "{}");
-			expect(hasTrustRequiringProjectResources(tempDir)).toBe(true);
-			rmSync(join(tempDir, ".pi", "settings.json"), { force: true });
+			writeFileSync(join(isolatedHome, CONFIG_DIR_NAME, "settings.json"), "{}");
+			expect(hasTrustRequiringProjectResources(isolatedHome)).toBe(true);
+			rmSync(join(isolatedHome, CONFIG_DIR_NAME, "settings.json"), { force: true });
 
-			mkdirSync(join(cwd, ".pi"), { recursive: true });
-			writeFileSync(join(cwd, ".pi", "settings.json"), "{}");
-			expect(hasTrustRequiringProjectResources(cwd)).toBe(true);
+			mkdirSync(join(isolatedProject, CONFIG_DIR_NAME), { recursive: true });
+			writeFileSync(join(isolatedProject, CONFIG_DIR_NAME, "settings.json"), "{}");
+			expect(hasTrustRequiringProjectResources(isolatedProject)).toBe(true);
 
-			rmSync(join(cwd, ".pi"), { recursive: true, force: true });
-			mkdirSync(join(cwd, ".agents", "skills"), { recursive: true });
-			expect(hasTrustRequiringProjectResources(cwd)).toBe(true);
+			rmSync(join(isolatedProject, CONFIG_DIR_NAME), { recursive: true, force: true });
+			mkdirSync(join(isolatedProject, ".agents", "skills"), { recursive: true });
+			expect(hasTrustRequiringProjectResources(isolatedProject)).toBe(true);
 		} finally {
 			if (originalHome === undefined) {
 				delete process.env.HOME;
 			} else {
 				process.env.HOME = originalHome;
+			}
+			if (originalUserProfile === undefined) {
+				delete process.env.USERPROFILE;
+			} else {
+				process.env.USERPROFILE = originalUserProfile;
 			}
 		}
 	});
